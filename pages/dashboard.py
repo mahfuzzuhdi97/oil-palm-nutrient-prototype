@@ -167,24 +167,34 @@ if metrics_df is not None:
 
     col_cm, col_dist = st.columns(2)
 
-    with col_cm:
+   with col_cm:
         st.markdown("### Confusion Matrix (Test Set)")
         
         # Altair Heatmap for Confusion Matrix
         base = alt.Chart(cm_df).encode(
-            x=alt.X('Predicted Status:N'),
-            y=alt.Y('True Status:N'),
-        ).properties(title="Confusion Matrix (Test Set)")
+            # Increased font size for axis titles and labels
+            x=alt.X('Predicted Status:N', axis=alt.Axis(titleFontSize=14, labelFontSize=12)),
+            y=alt.Y('True Status:N', axis=alt.Axis(titleFontSize=14, labelFontSize=12)),
+        ).properties(
+            title=alt.TitleParams("Confusion Matrix (Test Set)", fontSize=16) # Increased title font size
+        )
 
+        # Create the Heatmap layer
         heatmap = base.mark_rect().encode(
             color=alt.Color('Count:Q', scale=alt.Scale(range='heatmap')),
             tooltip=['True Status', 'Predicted Status', 'Count']
         )
-        text = base.mark_text().encode(text=alt.Text('Count:Q'), color=alt.value('black'))
         
-        chart_cm = (heatmap + text).interactive().properties(height=350)
+        # Add Text labels for counts (Increased font size for text inside cells)
+        text = base.mark_text().encode(
+            text=alt.Text('Count:Q'),
+            color=alt.value('black'),
+            size=alt.value(16) # Set size of the numbers inside the cells
+        )
+        
+        chart_cm = (heatmap + text).interactive().properties(height=400) # Increased height slightly for better fit
         st.altair_chart(chart_cm, use_container_width=True)
-        st.caption("The diagonal shows correct predictions for each fertility level.")
+        st.caption("Hover over the boxes to see the count. The diagonal shows correct predictions for each fertility level.")
 
     with col_dist:
         st.markdown("### Training Data Class Distribution")

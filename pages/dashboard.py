@@ -153,7 +153,7 @@ if metrics_df is not None:
     
     def highlight_max(s):
         is_max = s == s.max()
-        return ['background-color: #d4edda; font-weight: bold' if v else '' for v in is_max]
+        return ['background-color: #e0f2ff; font-weight: bold' if v else '' for v in is_max]
 
     st.dataframe(
         metrics_df.style.apply(highlight_max, subset=['Accuracy', 'F1 (Deficient)', 'F1 (Sufficient)', 'F1 (Excess)']),

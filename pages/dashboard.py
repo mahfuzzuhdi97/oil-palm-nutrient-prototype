@@ -25,7 +25,7 @@ def generate_dashboard_data(cache_version):
         model_path = 'best_n_status_classifier.pkl'
     except FileNotFoundError:
         st.error("Error: Required data or model file not found in the root directory.")
-        return None, None, None, None, None
+        return None, None, None, None, None, None
 
     # Data preprocessing
     cols_to_impute = ['Bulk_Density', 'Clay', 'Silt', 'Sand']
@@ -151,9 +151,11 @@ if metrics_df is not None:
     # --- 1. Model Comparison (Metrics Table) ---
     st.subheader("1. Algorithm Comparison by Fertility Level (F1-Score)")
     
+    # FIX: Adjusted background color for better contrast and visibility
     def highlight_max(s):
         is_max = s == s.max()
-        return ['background-color: #0000C2; font-weight: bold' if v else '' for v in is_max]
+        # Using a very light, neutral blue (#e0f2ff) with black text for better readability
+        return ['background-color: #e0f2ff; font-weight: bold; color: black' if v else '' for v in is_max]
 
     st.dataframe(
         metrics_df.style.apply(highlight_max, subset=['Accuracy', 'F1 (Deficient)', 'F1 (Sufficient)', 'F1 (Excess)']),
@@ -167,10 +169,10 @@ if metrics_df is not None:
 
     col_cm, col_dist = st.columns(2)
 
-   with col_cm:
+    with col_cm:
         st.markdown("### Confusion Matrix (Test Set)")
         
-        # Altair Heatmap for Confusion Matrix
+        # Altair Heatmap for Confusion Matrix - Increased font sizes for readability
         base = alt.Chart(cm_df).encode(
             # Increased font size for axis titles and labels
             x=alt.X('Predicted Status:N', axis=alt.Axis(titleFontSize=14, labelFontSize=12)),
@@ -179,22 +181,19 @@ if metrics_df is not None:
             title=alt.TitleParams("Confusion Matrix (Test Set)", fontSize=16) # Increased title font size
         )
 
-        # Create the Heatmap layer
         heatmap = base.mark_rect().encode(
             color=alt.Color('Count:Q', scale=alt.Scale(range='heatmap')),
             tooltip=['True Status', 'Predicted Status', 'Count']
         )
-        
-        # Add Text labels for counts (Increased font size for text inside cells)
         text = base.mark_text().encode(
-            text=alt.Text('Count:Q'),
+            text=alt.Text('Count:Q'), 
             color=alt.value('black'),
             size=alt.value(16) # Set size of the numbers inside the cells
         )
         
-        chart_cm = (heatmap + text).interactive().properties(height=400) # Increased height slightly for better fit
+        chart_cm = (heatmap + text).interactive().properties(height=400) 
         st.altair_chart(chart_cm, use_container_width=True)
-        st.caption("Hover over the boxes to see the count. The diagonal shows correct predictions for each fertility level.")
+        st.caption("The diagonal shows correct predictions for each fertility level.")
 
     with col_dist:
         st.markdown("### Training Data Class Distribution")
@@ -205,7 +204,7 @@ if metrics_df is not None:
             y=alt.Y('N_Status:N', sort='-x', title='Fertility Status'),
             color=alt.Color('N_Status:N', legend=None),
             tooltip=['N_Status', 'Count']
-        ).properties(title="Training Set Class Counts", height=350).interactive()
+        ).properties(title="Training Set Class Counts", height=400).interactive()
         
         st.altair_chart(chart_dist, use_container_width=True)
         st.caption("This chart confirms the data balance used for training.")
